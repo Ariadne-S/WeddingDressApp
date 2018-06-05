@@ -1,0 +1,42 @@
+﻿@model DressIndexModel
+
+@{
+    ViewData["Title"] = "Home Page";
+}
+
+<div>
+    Add a Dress
+    <form asp-controller="dress" asp-action="new" method="post">
+       Dress Webpage: <input name="WebpageUrl" type="url" />
+       <button type="Submit">Search</button>
+    </form>
+</div>
+
+<div>
+    @foreach (var dress in Model.Dresses)
+    {
+    <div class="dress-item">
+        <div class="dress-image">
+            <img src="@(dress.Image ?? "/images/placeholder.jpg")" />
+        </div>
+        <div class="dress-name">
+            @dress.Name
+        </div>
+        <div class="dress-shop">
+            @dress.Shop
+        </div>
+
+        @if (dress.Price != null) {
+        <div class="dress-price">
+            @dress.Price
+        </div>
+        }
+
+        <div class="dress-descriptopn">
+            @dress.Description
+        </div>
+    </div>
+
+    }
+
+</div>

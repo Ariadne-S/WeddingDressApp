@@ -1,0 +1,13 @@
+
+Get  /
+
+Get  /Dress
+Get  /Dress/New
+Post /Dress
+Get  /Dress/{Id}
+Post /Dress/{Id}
+
+Get  /Shop
+Get  /Shop/{Id}
+Post /Shop/{Id}
+
