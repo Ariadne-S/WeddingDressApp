@@ -1,5 +1,13 @@
-﻿body {
-    padding-top: 50px;
+﻿.header {
+    width: 100%;
+    background-color: lightsteelblue;
+    padding: 15px 20px;
+    margin-bottom:20px;
+    font-weight: bold;
+    font-size: 25px;
+}
+
+body {
     padding-bottom: 20px;
 }
 
