@@ -30,20 +30,21 @@
         <div class="dress-image">
             <img src="@(dress.Image ?? "/images/placeholder.jpg")" />
         </div>
-        <div class="dress-name">
+        <div class="dress-item-header">
+            <div class="dress-name">
             @dress.Name
-        </div>
-        <div class="dress-shop">
+            </div>
+            <div class="dress-shop">
             @dress.Shop
-        </div> 
+            </div> 
 
-        @if (dress.Price != null) {
-        <div class="dress-price">
-            @dress.Price
+            @if (dress.Price != null) {
+                <div class="dress-price">
+                    | @dress.Price
+                </div>
+            }
         </div>
-        }
-
-        <div class="dress-descriptopn">
+        <div class="dress-description">
             @dress.Description
         </div>
     </div>
