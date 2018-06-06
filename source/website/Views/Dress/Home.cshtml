@@ -12,6 +12,17 @@
     </form>
 </div>
 
+<div class="dress-types">
+    <a class="dress-type dress-type-bride @(Model.DressType == DressType.Bride ? "active" : "")"
+       asp-controller="Dress" 
+       asp-action="Home" 
+       asp-route-dresstype="@DressType.Bride">Bride</a><!--
+ --><a class="dress-type dress-type-bridemaids @(Model.DressType == DressType.BridesMaid ? "active" : "")"
+       asp-controller="Dress" 
+       asp-action="Home" 
+       asp-route-dresstype="@DressType.BridesMaid">Bridesmaids</a>
+</div>
+
 <div>
     @foreach (var dress in Model.Dresses)
     {
@@ -24,7 +35,7 @@
         </div>
         <div class="dress-shop">
             @dress.Shop
-        </div>
+        </div> 
 
         @if (dress.Price != null) {
         <div class="dress-price">

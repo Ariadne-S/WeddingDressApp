@@ -10,3 +10,35 @@
     padding-right: 15px;
 }
 
+.dress-types {
+    margin: 12px 0px;
+    width: 90%;
+    box-sizing: border-box;
+}
+
+.dress-type {
+    display: inline-block;
+    width: 50%;
+    box-sizing: border-box;
+    background-color: lavender;
+    padding: 10px;
+    text-align: center;
+    color:black;
+}
+
+
+a.dress-type:hover {
+    background-color: mediumpurple; 
+    color: black;
+    text-decoration: none;
+}
+a.dress-type.active {
+    background-color: rebeccapurple;
+    text-decoration: solid;
+}
+
+.dress-item {
+    border-bottom-color: dimgrey;
+    border-bottom: groove;
+    
+}
