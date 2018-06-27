@@ -1,8 +1,8 @@
 ﻿.header {
     width: 100%;
-    background-color: lightsteelblue;
+    background-color: #b0aac2;
     padding: 15px 20px;
-    margin-bottom:20px;
+    margin-bottom: 20px;
     font-weight: bold;
     font-size: 25px;
 }
@@ -28,20 +28,20 @@ body {
     display: inline-block;
     width: 50%;
     box-sizing: border-box;
-    background-color: lavender;
+    background-color: #f2efe8;
     padding: 10px;
     text-align: center;
-    color:black;
+    color: black;
 }
 
 
 a.dress-type:hover {
-    background-color: mediumpurple; 
+    background-color: #c2d4d8;
     color: black;
     text-decoration: none;
 }
 a.dress-type.active {
-    background-color: rebeccapurple;
+    background-color: #c2d4d8;
     text-decoration: solid;
 }
 
@@ -82,9 +82,72 @@ dress-item-header {
 
 .dress-price {
     display: inline-block;
-    color: mediumpurple;
+    color: #b0aac2;
 }
 
-.dress-description{
-    grid-area:desc;
+.bride-options {
+    grid-area: rt;
+}
+
+
+.dress-description {
+    grid-area: desc;
+}
+
+.navigation {
+    background: #f2efe8;
+    width: 100%;
+    display: grid;
+    grid-template-columns: 20px 20px auto 20px;
+    grid-auto-rows: 30px;
+    grid-template-areas: "prev next emp cls";
+}
+
+.nav {
+    padding: 3px;
+    margin: 0 5px;
+    font-size: 16px;
+    display: inline-block;
+}
+
+.nav-prev {
+    margin-left: 3px;
+    grid-area: prev;
+}
+
+.nav-next {
+    margin-left: 3px;
+    grid-area: next;
+}
+
+.nav-x {
+    grid-area: cls;
+    margin-right: 3px;
+}
+
+.dress-recommendation{
+    margin-top: 10px;
+}
+
+.dress-comments {
+    border-color: dimgray;
+    border: 2px;
+    border-style: solid;
+    display: grid;
+    width: 80%;
+    margin: auto;
+}
+
+
+
+.previous-comments {
+    text-align: center;
+}
+
+.com-new {
+    background: #c2d4d8;
+    border-top-color: dimgray;
+    border-top: 2px;
+    border-top-style: solid;
+    text-align: center;
 }

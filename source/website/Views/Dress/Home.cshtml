@@ -23,6 +23,10 @@
        asp-route-dresstype="@DressType.BridesMaid">Bridesmaids</a>
 </div>
 
+<div class="dress-filters">
+    <!--name, price, shop, favourite, rank, approved, search -->
+</div>
+
 <div>
     @foreach (var dress in Model.Dresses)
     {
@@ -31,14 +35,17 @@
             <img src="@(dress.Image ?? "/images/placeholder.jpg")" />
         </div>
         <div class="dress-item-header">
-            <div class="dress-name">
-            @dress.Name
-            </div>
-            <div class="dress-shop">
-            @dress.Shop
-            </div> 
 
-            @if (dress.Price != null) {
+            <div class="dress-name">
+                @dress.Name
+            </div>
+
+            <div class="dress-shop">
+                @dress.Shop
+            </div>
+
+            @if (dress.Price != null)
+            {
                 <div class="dress-price">
                     | @dress.Price
                 </div>
@@ -47,7 +54,20 @@
         <div class="dress-description">
             @dress.Description
         </div>
-    </div>
+
+        <div class="bride-options">
+            <div class="dress-rating">
+                @dress.Rating
+            </div>
+
+            <div class="dress-approval">
+                @dress.Approval
+            </div>
+        </div>
+
+
+
+        </div>
 
     }
 

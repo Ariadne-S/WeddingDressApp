@@ -1,0 +1,59 @@
+﻿@model DressDetailsModel
+
+@{
+    ViewData["Title"] = "GetDress";
+}
+
+<div class="navigation">
+    <div class=" nav nav-prev"><</div>
+    <div class="nav nav-next">></div>
+    <div class="nav nav-x">x</div>
+</div>
+
+<div class="dress-details-image">
+    <img src="@(Model.Image ?? "/images/placeholder.jpg")" />
+</div>
+
+<h2>@Model.Name</h2>
+<div class="dress-shop">@Model.Shop</div>
+@if (Model.Price != null)
+{
+    <div class="dress-price">
+        | @Model.Price
+    </div>
+}
+<div class="dress-desc-type">| @Model.DressType</div>
+
+<div class="dress-details-description">@Model.Description</div>
+
+<div class="dress-recommendation">This dress was recommended by @Model.Recommendation</div>
+
+<div class="dress-details-buttons">
+    <div class="edit">Edit</div>
+    <div class="delete">Delete</div>
+</div>
+
+<div class="dress-comments">
+    <div class= "previous-comments">
+        @foreach (var comment in Model.Comments) {
+        <div class="comment">@comment</div>
+        }
+    </div>
+
+    <form asp-action="NewComment">
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="add-new-comment">
+                <label asp-for="NewComment" class="control-label">Add Comment</label>
+                <input asp-for="NewComment" class="form-control" />
+                <span asp-validation-for="NewComment" class="text-danger"></span>
+            </div>
+        <div class="form-group">
+            <input type="submit" value="Save" class="btn btn-default" />
+        </div>
+    </form>
+</div>
+
+
+
+
+

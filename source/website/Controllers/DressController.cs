@@ -48,14 +48,45 @@ namespace Website.Controllers
         [HttpPost("new")]
         public IActionResult NewDress(AddDressUrlModel model)
         {
+            // Scrapes website and saves dress data
+            // Saves new dress to database
+            // Navigates to dress view page
             return Redirect("/dress/465DD223-47D3-49F7-8397-42BC5D0D5928");
         }
 
         [HttpGet("{id}")]
-        public IActionResult GetNewDress(Guid id)
+        public IActionResult GetDressDetails(Guid id)
         {
-            var model = new GetNewDressModel();
-            model.Url = "TODO";
+            var model = new DressDetailsModel()
+            {
+                Name = "Lilli White",
+                Price = "$2300",
+                Shop = "Amy Loves Beads",
+                Description = "Feel dreamy in this feminine chiffon A-line gown with an illusion V-neckline, lace appliqués on the sleeves and sheer back, and a dropped waistline. This gown is completed with a chapel length train.",
+                Image = null,
+                Recommendation = "Kayla",
+                Comments = new List<string>() {
+                    "Love Love Love!",
+                    "So pretty!",
+                },
+                Approval = "Yes",
+                DressType = DressType.Bride,
+            };
+            return View(model);
+        }
+
+        [HttpGet("{id}/edit")]
+        public IActionResult EditDressDetails(Guid id)
+        {
+            var model = new EditDressDetailsModel()
+            {
+                Name = "Lilli White",
+                Price = "$2300",
+                Shop = "Amy Loves Beads",
+                Description = "Feel dreamy in this feminine chiffon A-line gown with an illusion V-neckline, lace appliqués on the sleeves and sheer back, and a dropped waistline. This gown is completed with a chapel length train.",
+                Image = null,
+                DressType = DressType.Bride,
+            };
             return View(model);
         }
 

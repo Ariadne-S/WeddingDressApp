@@ -8,6 +8,7 @@
 
   <ItemGroup>
     <!--<PackageReference Include="Microsoft.NETCore.App" Version="2.0.7" />-->
+    <PackageReference Include="Dapper" Version="1.50.5" />
     <PackageReference Include="Microsoft.AspNetCore.All" Version="2.0.5" />
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="2.0.3" />
     <!--<PackageReference Include="Microsoft.DotNet.Watcher.Tools" Version="2.0.2" />-->
