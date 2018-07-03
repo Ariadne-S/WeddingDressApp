@@ -30,45 +30,42 @@
 <div>
     @foreach (var dress in Model.Dresses)
     {
-    <div class="dress-item">
-        <div class="dress-image">
-            <img src="@(dress.Image ?? "/images/placeholder.jpg")" />
-        </div>
-        <div class="dress-item-header">
-
-            <div class="dress-name">
-                @dress.Name
+    <a asp-action="GetDressDetails" asp-route-id="@dress.Id">
+        <div class="dress-item">
+            <div class="dress-image">
+                <img src="@(dress.Image ?? "/images/placeholder.jpg")" />
             </div>
+            <div class="dress-item-header">
 
-            <div class="dress-shop">
-                @dress.Shop
-            </div>
-
-            @if (dress.Price != null)
-            {
-                <div class="dress-price">
-                    | @dress.Price
+                <div class="dress-name">
+                    @dress.Name
                 </div>
-            }
-        </div>
-        <div class="dress-description">
-            @dress.Description
-        </div>
 
-        <div class="bride-options">
-            <div class="dress-rating">
-                @dress.Rating
+                <div class="dress-shop">
+                    @dress.Shop
+                </div>
+
+                @if (dress.Price != null)
+                {
+                    <div class="dress-price">
+                        | @dress.Price
+                    </div>
+                }
+            </div>
+            <div class="dress-description">
+                @dress.Description
             </div>
 
-            <div class="dress-approval">
-                @dress.Approval
+            <div class="bride-options">
+                <div class="dress-rating">
+                    @dress.Rating
+                </div>
+
+                <div class="dress-approval">
+                    @dress.Approval
+                </div>
             </div>
         </div>
-
-
-
-        </div>
-
+    </a>
     }
-
 </div>

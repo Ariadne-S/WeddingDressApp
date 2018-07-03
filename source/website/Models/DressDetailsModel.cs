@@ -18,6 +18,8 @@ namespace Website.Models
         public string Rating { get; set; }
         public string Recommendation { get; set; }
         public List<string> Comments { get; set; }
+        public Guid UserId { get; set; }
+        public DateTimeOffset DateComment { get; set; }
         public string NewComment { get; set; }
         public DressType DressType { get; set; }
     }

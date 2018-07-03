@@ -1,16 +1,28 @@
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Website.Models;
+using Dapper;
+using Website.Entities;
+using DressType = Website.Models.DressType;
+using AutomaticModelStateValidation;
 
 namespace Website.Controllers
 {
     [Route("/dress")]
     public class DressController : Controller
     {
+        IDbConnection connection;
+
+        public DressController(IDbConnection dbConnection)
+        {
+            this.connection = dbConnection;
+        }
+
         [HttpGet("")]
         public IActionResult Home()
         {
@@ -48,10 +60,59 @@ namespace Website.Controllers
         [HttpPost("new")]
         public IActionResult NewDress(AddDressUrlModel model)
         {
-            // Scrapes website and saves dress data
-            // Saves new dress to database
-            // Navigates to dress view page
-            return Redirect("/dress/465DD223-47D3-49F7-8397-42BC5D0D5928");
+            // TODO: Scrapes website
+            var responseModel = new GetNewDressModel()
+            {
+                Name = "",
+                Price = "",
+                Shop = "",
+                Description = "",
+                Image = null,
+                DressType = null,
+                Url = model.WebpageUrl
+            };
+            return View("GetNewDress", responseModel);
+        }
+
+        private Website.Entities.DressType MapDressType(Website.Models.DressType modelDressType)
+        {
+            switch (modelDressType)
+            {
+                case DressType.Bride:
+                    return Website.Entities.DressType.Bride;
+                case DressType.BridesMaid:
+                    return Website.Entities.DressType.BridesMaid;
+            }
+            return Website.Entities.DressType.Bride;
+        }
+
+
+        [HttpPost("save")]
+        [AutoValidateModel(nameof(NewDress))]
+        public async Task<IActionResult> SaveDress(SaveDressModel model)
+        {
+            //var x = ModelState;
+            await connection.ExecuteAsync(
+                @"Insert Dresses(DressId, DressName, DressWebpage, Price, ProductDescription, DressType, RecommendedBy, DressApproval, Rating, ShopId, WeddingId, ImageId) 
+                       values (@DressId, @DressName, @DressWebpage, @Price, @ProductDescription, @DressType, @RecommendedBy, @DressApproval, @Rating, @ShopId, @WeddingId, @ImageId)",
+                    new DressEntity()
+                    {
+                        DressId = Guid.NewGuid(),
+                        DressName = "",
+                        DressWebpage = model.Url,
+                        Price = 0,
+                        ProductDescription = "",
+                        DressType = MapDressType(model.DressType.Value),
+                        RecommendedBy = Guid.Empty, //currentuser
+                        DressApproval = DressApproval.NeedsApproval,
+                        Rating = null,
+                        ShopId = Guid.NewGuid(),
+                        WeddingId = Guid.Empty,
+                        ImageId = Guid.Empty
+                    }
+
+                );
+            return RedirectToAction(nameof(GetDressDetails), new {Id = Guid.Empty});
         }
 
         [HttpGet("{id}")]
@@ -91,8 +152,28 @@ namespace Website.Controllers
         }
 
         [HttpPost("{id}")]
-        public IActionResult UpdateDress(Guid id)
+        public async Task<IActionResult> UpdateDress(Guid id)
         {
+            /*
+            await connection.ExecuteAsync(
+                @"Insert Dress(DressId, DressName, DressWebpage, Price, ProductDescription, DressType. RecommendedBy, Approval, Rating, ShopId, ImageId) 
+                       values (@DressId, @DressName, @DressWebpage, @Price, @ProductDescription, @DressType, @RecommendedBy, @Rating, @ShopId, @ImageId)",
+                    new DressEntity()
+                    {
+                        DressId = Guid.NewGuid(),
+                        DressName = "",
+                        DressWebpage = model.WebpageUrl,
+                        Price = 0,
+                        ProductDescription = "",
+                        DressType = null,
+                        RecommendedBy = Guid.Empty, //currentuser
+                        DressApproval = DressApproval.NeedsApproval,
+                        Rating
+
+                    }
+
+                );
+            */
             return Redirect("/dress");
             //remember to redirect to shop if we need to set up a new shop otherwise go to dress. (To do later)
         }

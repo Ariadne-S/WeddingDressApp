@@ -5,10 +5,11 @@ using System.Threading.Tasks;
 
 namespace Website.Entities
 {
-    public enum ImageFavourite
+    public enum DressApproval
     {
-        Yes, 
-        No
+        Approved,
+        NotApproved,
+        NeedsApproval
     }
 
 }

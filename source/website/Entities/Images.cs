@@ -13,5 +13,5 @@ namespace Website.Entities
         public byte[] FileData { get; set; }
         public string Hash { get; set; }
         public bool ImageFavourite { get; set; }
-            }
+    }
 }

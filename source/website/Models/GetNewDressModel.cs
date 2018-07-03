@@ -9,10 +9,10 @@ namespace Website.Models
     {
         public string Url { get; set; }
         public string Image { get; set; }
-        public string ImageIcon { get; set; }
         public string Name { get; set; }
         public string Price { get; set; }
+        public string Shop { get; set; }
         public string Description { get; set; }
-        public string Type { get; set; }
+        public DressType? DressType { get; set; }
     }
 }

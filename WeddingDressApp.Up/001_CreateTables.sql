@@ -5,11 +5,12 @@
 	DressWebpage nVarChar (500),
     Price money,  
     ProductDescription nVarChar (max),
-	DressType VarChar (11) NOT NULL, --CHECK (DressType IN('Bride', 'Bridesmaids')),
+	DressType VarChar (11) NOT NULL,
 	RecommendedBy UniqueIdentifier,
-	Approval VarChar (8) NOT NULL, --CHECK (Approval IN('Yes', 'No', 'Required')),
+	DressApproval VarChar (8) NOT NULL,
 	Rating Int,
 	ShopId UniqueIdentifier,
+	WeddingId UniqueIdentifier,
 	ImageId UniqueIdentifier
 )
 CREATE CLUSTERED INDEX DressesSeqId ON dbo.Dresses(SequentialId)
@@ -67,3 +68,12 @@ CREATE TABLE Guests (
 	GuestType VarChar (20)
 )
 CREATE CLUSTERED INDEX GuestsSeqId ON dbo.Guests(SequentialId)
+
+CREATE TABLE Comments (
+	CommentId UniqueIdentifier PRIMARY KEY NONCLUSTERED NOT NULL,
+	SequentialId Int identity NOT NULL,
+	UserId UniqueIdentifier NOT NULL,
+	DressId UniqueIdentifier NOT NULL,
+	Comment VarChar (256) NOT NULL,
+	CommentDate datetime2 NOT NULL,
+	)

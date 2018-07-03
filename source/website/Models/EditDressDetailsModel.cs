@@ -13,6 +13,6 @@ namespace Website.Models
             public string Shop { get; set; }
             public string Price { get; set; }
             public string Description { get; set; }
-            public DressType DressType { get; set; }
+            public DressType? DressType { get; set; }
     }
 }

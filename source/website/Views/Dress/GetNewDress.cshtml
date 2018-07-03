@@ -11,13 +11,20 @@
 
 <div class="row">
     <div class="col-md-4">
-        <form asp-action="GetNewDress">
+        <form asp-action="SaveDress" enctype="multipart/form-data">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <div class="new-dress-WebpageUrl">
                 <label asp-for="Url" class="control-label"></label>
                 <input asp-for="Url" class="form-control" />
                 <span asp-validation-for="Url" class="text-danger"></span>
             </div>
+            <div class="new-dress-image">
+                <label asp-for="Image" class="control-label"></label>
+                <input type="file" asp-for="Image" class="form-control" multiple />
+                <span asp-validation-for="Image" class="text-danger"></span>
+            </div>
+
+
             <div class="new-dress-name">
                 <label asp-for="Name" class="control-label"></label>
                 <input asp-for="Name" class="form-control" />
@@ -35,12 +42,14 @@
             </div>
             <div class="btn-group btn-group-toggle" data-toggle="buttons">
                 <label class="btn btn-secondary active">
-                    <input type="radio" name="options" id="option1" autocomplete="off" checked> Bride
+                    <input type="radio" asp-for="DressType" checked value="Bride"> Bride
                 </label>
                 <label class="btn btn-secondary">
-                    <input type="radio" name="options" id="option2" autocomplete="off"> Bridesmaid
+                    <input type="radio" asp-for="DressType" autocomplete="off" value="Bridesmaid"> Bridesmaid
                 </label>
+                <span asp-validation-for="DressType" class="text-danger"></span>
             </div>
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <div class="form-group">
                 <input type="submit" value="Save" class="btn btn-default" />
             </div>
