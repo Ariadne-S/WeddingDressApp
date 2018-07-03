@@ -91,13 +91,14 @@ namespace Website.Controllers
         [AutoValidateModel(nameof(NewDress))]
         public async Task<IActionResult> SaveDress(SaveDressModel model)
         {
+            var dressId = Guid.NewGuid();
             //var x = ModelState;
             await connection.ExecuteAsync(
                 @"Insert Dresses(DressId, DressName, DressWebpage, Price, ProductDescription, DressType, RecommendedBy, DressApproval, Rating, ShopId, WeddingId, ImageId) 
                        values (@DressId, @DressName, @DressWebpage, @Price, @ProductDescription, @DressType, @RecommendedBy, @DressApproval, @Rating, @ShopId, @WeddingId, @ImageId)",
                     new DressEntity()
                     {
-                        DressId = Guid.NewGuid(),
+                        DressId = dressId,
                         DressName = "",
                         DressWebpage = model.Url,
                         Price = 0,
@@ -112,25 +113,31 @@ namespace Website.Controllers
                     }
 
                 );
-            return RedirectToAction(nameof(GetDressDetails), new {Id = Guid.Empty});
+            return RedirectToAction(nameof(GetDressDetails), new {Id = dressId});
         }
 
         [HttpGet("{id}")]
-        public IActionResult GetDressDetails(Guid id)
+        public async Task <IActionResult> GetDressDetails(Guid id)
         {
+            var dress =
+                connection
+                .Query<DressEntity>(
+                    "Select DressId, DressName, DressWebpage, Price, ProductDescription, DressType, RecommendedBy, DressApproval, Rating, ShopId, ImageId FROM Dresses WHERE DressId = @DressId", new { DressId = id})
+                .Single();
+
             var model = new DressDetailsModel()
             {
-                Name = "Lilli White",
-                Price = "$2300",
-                Shop = "Amy Loves Beads",
-                Description = "Feel dreamy in this feminine chiffon A-line gown with an illusion V-neckline, lace appliqués on the sleeves and sheer back, and a dropped waistline. This gown is completed with a chapel length train.",
-                Image = null,
-                Recommendation = "Kayla",
+                Name = dress.DressName,
+                Price = dress.Price.ToString("C"),
+                Shop = "Need to do",
+                Description = dress.ProductDescription,
+                Image = "Need to do",
+                Recommendation = "To do",
                 Comments = new List<string>() {
                     "Love Love Love!",
                     "So pretty!",
                 },
-                Approval = "Yes",
+                Approval = dress.DressApproval.ToString(),
                 DressType = DressType.Bride,
             };
             return View(model);
