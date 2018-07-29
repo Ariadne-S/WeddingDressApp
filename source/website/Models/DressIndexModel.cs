@@ -22,5 +22,6 @@ namespace Website.Models
         public string Description { get; set; }
         public string Rating { get; set; }
         public string Approval { get; set; }
+        public string RecommendedBy { get; set; }
     }
 }

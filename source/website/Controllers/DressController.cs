@@ -26,33 +26,29 @@ namespace Website.Controllers
         [HttpGet("")]
         public IActionResult Home()
         {
+            var dresses =
+                connection
+                .Query<DressEntity>(
+                    "Select DressId, DressName, DressWebpage, Price, ProductDescription, DressType, RecommendedBy, DressApproval, Rating, ShopId, ImageId FROM Dresses")
+                .Select(dress =>
+                {
+                    return new DressItem()
+                    {
+                        Name = dress.DressName,
+                        Price = dress.Price.ToString("C"),
+                        Shop = "Need to do",
+                        Description = dress.ProductDescription,
+                        Image = "Need to do",
+                        RecommendedBy = "To do",
+                        Approval = dress.DressApproval.ToString(),
+                        Rating = "2",
+                    };
+                })
+                .ToList();
+
             var model = new DressIndexModel() {
                 DressType = DressType.Bride,
-                Dresses = new List<DressItem>()
-                {
-                    new DressItem() {
-                        Name = "Lilli White",
-                        Price = "$2300",
-                        Shop = "Amy Loves Beads",
-                        Description = "Feel dreamy in this feminine chiffon A-line gown with an illusion V-neckline, lace appliqués on the sleeves and sheer back, and a dropped waistline. This gown is completed with a chapel length train.",
-                        Image = null,
-                    },
-                    new DressItem() {
-                        Name = "Sea Pearl",
-                        Price = "$3800",
-                        Shop = "Sunkissed Brides",
-                        Description = "Lovely lace cap sleeves and a subtle v-neckline. The back of this dress is an eyecatcher!",
-                        Image = null,
-                    },
-                    new DressItem() {
-                        Name = "Snow Drop",
-                        Price = null,
-                        Shop = "Ivory and Seashells",
-                        Description = "Hand constructed A-line silhouette, V-neck dress with plunge detail and chapel train. Tulle and lace beaded with pearls and crystals.",
-                        Image = null,
-                    },
-                }
-              
+                Dresses = dresses
             };
             return View(model);
         }
@@ -113,21 +109,22 @@ namespace Website.Controllers
                     }
 
                 );
-            return RedirectToAction(nameof(GetDressDetails), new {Id = dressId});
+            return RedirectToAction(nameof(GetDressDetails), new { Id = dressId });
         }
 
         [HttpGet("{id}")]
-        public async Task <IActionResult> GetDressDetails(Guid id)
+        public async Task<IActionResult> GetDressDetails(Guid id)
         {
             var dress =
                 connection
                 .Query<DressEntity>(
-                    "Select DressId, DressName, DressWebpage, Price, ProductDescription, DressType, RecommendedBy, DressApproval, Rating, ShopId, ImageId FROM Dresses WHERE DressId = @DressId", new { DressId = id})
+                    "Select DressId, DressName, DressWebpage, Price, ProductDescription, DressType, RecommendedBy, DressApproval, Rating, ShopId, ImageId FROM Dresses WHERE DressId = @DressId", new { DressId = id })
                 .Single();
 
             var model = new DressDetailsModel()
             {
                 Name = dress.DressName,
+                DressWebpage = dress.DressWebpage,
                 Price = dress.Price.ToString("C"),
                 Shop = "Need to do",
                 Description = dress.ProductDescription,
@@ -138,51 +135,57 @@ namespace Website.Controllers
                     "So pretty!",
                 },
                 Approval = dress.DressApproval.ToString(),
+                Rating = "2",
                 DressType = DressType.Bride,
             };
             return View(model);
         }
 
-        [HttpGet("{id}/edit")]
-        public IActionResult EditDressDetails(Guid id)
+        [HttpGet("{DressId}/edit")]
+        public async Task<IActionResult> EditDressDetails(Guid id)
         {
+            var dress =
+                connection
+                .Query<DressEntity>(
+                    "Select DressId, DressName, DressWebpage, Price, ProductDescription, DressType, Rating, ShopId, ImageId FROM Dresses WHERE DressId = @DressId", new { DressId = id })
+                .Single();
+
             var model = new EditDressDetailsModel()
             {
-                Name = "Lilli White",
-                Price = "$2300",
-                Shop = "Amy Loves Beads",
-                Description = "Feel dreamy in this feminine chiffon A-line gown with an illusion V-neckline, lace appliqués on the sleeves and sheer back, and a dropped waistline. This gown is completed with a chapel length train.",
-                Image = null,
+                DressName = dress.DressName,
+                DressWebpage = dress.DressWebpage,
+                Price = dress.Price.ToString("C"),
+                Shop = "Need to do",
+                Rating = "2",
+                ProductDescription = dress.ProductDescription,
+                Image = "Need to do",
                 DressType = DressType.Bride,
             };
             return View(model);
         }
-
         [HttpPost("{id}")]
-        public async Task<IActionResult> UpdateDress(Guid id)
+        [AutoValidateModel(nameof(EditDressDetails))]
+        public async Task<IActionResult> UpdateDressDetails(EditDressDetailsModel model)
         {
-            /*
             await connection.ExecuteAsync(
-                @"Insert Dress(DressId, DressName, DressWebpage, Price, ProductDescription, DressType. RecommendedBy, Approval, Rating, ShopId, ImageId) 
-                       values (@DressId, @DressName, @DressWebpage, @Price, @ProductDescription, @DressType, @RecommendedBy, @Rating, @ShopId, @ImageId)",
-                    new DressEntity()
-                    {
-                        DressId = Guid.NewGuid(),
-                        DressName = "",
-                        DressWebpage = model.WebpageUrl,
-                        Price = 0,
-                        ProductDescription = "",
-                        DressType = null,
-                        RecommendedBy = Guid.Empty, //currentuser
-                        DressApproval = DressApproval.NeedsApproval,
-                        Rating
+                @"UPDATE Dresses SET DressName = @DressName, DressWebpage = @DressWebpage, Price = @Price, ProductDescription = @ProductDescription, DressType = @DressType, DressApproval = @DressApproval, Rating = @Rating, ShopId = @ShopId,  ImageId = @ImageId) 
+                        WHERE DressId = @DressId",
+                new
+                {
+                    model.DressId,
+                    model.DressName,
+                    model.DressWebpage,
+                    model.Price,
+                    model.ProductDescription,
+                    DressType = MapDressType(model.DressType.Value),
+                    Rating = (int?)null,
+                    ShopID = model.Shop,
+                    ImageID = model.Image,
+                }
 
-                    }
-
-                );
-            */
-            return Redirect("/dress");
-            //remember to redirect to shop if we need to set up a new shop otherwise go to dress. (To do later)
+            );
+            return RedirectToAction(nameof(EditDressDetails));
         }
+        
     }
 }

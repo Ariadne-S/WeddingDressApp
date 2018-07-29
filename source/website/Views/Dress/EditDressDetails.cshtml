@@ -15,14 +15,14 @@
         <form asp-action="GetNewDress">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <div class="new-dress-WebpageUrl">
-                <label asp-for="Url" class="control-label"></label>
-                <input asp-for="Url" class="form-control" />
-                <span asp-validation-for="Url" class="text-danger"></span>
+                <label asp-for="DressWebpage" class="control-label"></label>
+                <input asp-for="DressWebpage" class="form-control" />
+                <span asp-validation-for="DressWebpage" class="text-danger"></span>
             </div>
             <div class="new-dress-name">
-                <label asp-for="Name" class="control-label"></label>
-                <input asp-for="Name" class="form-control" />
-                <span asp-validation-for="Name" class="text-danger"></span>
+                <label asp-for="DressName" class="control-label"></label>
+                <input asp-for="DressName" class="form-control" />
+                <span asp-validation-for="DressName" class="text-danger"></span>
             </div>
             <div class="new-dress-price">
                 <label asp-for="Price" class="control-label"></label>
@@ -30,9 +30,9 @@
                 <span asp-validation-for="Price" class="text-danger"></span>
             </div>
             <div class="new-dress-description">
-                <label asp-for="Description" class="control-label"></label>
-                <input asp-for="Description" class="form-control" />
-                <span asp-validation-for="Description" class="text-danger"></span>
+                <label asp-for="ProductDescription" class="control-label"></label>
+                <input asp-for="ProductDescription" class="form-control" />
+                <span asp-validation-for="ProductDescription" class="text-danger"></span>
             </div>
             <div class="btn-group btn-group-toggle" data-toggle="buttons">
                 <label class="btn btn-secondary active">
