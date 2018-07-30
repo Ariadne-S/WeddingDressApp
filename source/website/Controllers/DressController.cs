@@ -34,6 +34,7 @@ namespace Website.Controllers
                 {
                     return new DressItem()
                     {
+                        Id = dress.DressId,
                         Name = dress.DressName,
                         Price = dress.Price.ToString("C"),
                         Shop = "Need to do",
@@ -112,13 +113,13 @@ namespace Website.Controllers
             return RedirectToAction(nameof(GetDressDetails), new { Id = dressId });
         }
 
-        [HttpGet("{id}")]
-        public async Task<IActionResult> GetDressDetails(Guid id)
+        [HttpGet("{dressId}")]
+        public async Task<IActionResult> GetDressDetails(Guid dressId)
         {
             var dress =
                 connection
                 .Query<DressEntity>(
-                    "Select DressId, DressName, DressWebpage, Price, ProductDescription, DressType, RecommendedBy, DressApproval, Rating, ShopId, ImageId FROM Dresses WHERE DressId = @DressId", new { DressId = id })
+                    "Select DressId, DressName, DressWebpage, Price, ProductDescription, DressType, RecommendedBy, DressApproval, Rating, ShopId, ImageId FROM Dresses WHERE DressId = @DressId", new { DressId = dressId })
                 .Single();
 
             var model = new DressDetailsModel()
@@ -141,35 +142,46 @@ namespace Website.Controllers
             return View(model);
         }
 
-        [HttpGet("{DressId}/edit")]
-        public async Task<IActionResult> EditDressDetails(Guid id)
+        [HttpGet("{dressId}/edit")]
+        public async Task<IActionResult> EditDressDetails(Guid dressId)
         {
-            var dress =
-                connection
-                .Query<DressEntity>(
-                    "Select DressId, DressName, DressWebpage, Price, ProductDescription, DressType, Rating, ShopId, ImageId FROM Dresses WHERE DressId = @DressId", new { DressId = id })
-                .Single();
+            var dresses =
+                await connection
+                .QueryAsync<DressEntity>(
+                    "Select DressId, DressName, DressWebpage, Price, ProductDescription, DressType, ShopId, ImageId FROM Dresses WHERE DressId = @DressId",
+                    new { DressId = dressId });
+            var dress = dresses.Single();
 
             var model = new EditDressDetailsModel()
             {
+                DressId = dress.DressId,
                 DressName = dress.DressName,
                 DressWebpage = dress.DressWebpage,
                 Price = dress.Price.ToString("C"),
                 Shop = "Need to do",
-                Rating = "2",
                 ProductDescription = dress.ProductDescription,
                 Image = "Need to do",
                 DressType = DressType.Bride,
             };
             return View(model);
         }
-        [HttpPost("{id}")]
+
+        [HttpPost("{dressId}")]
         [AutoValidateModel(nameof(EditDressDetails))]
         public async Task<IActionResult> UpdateDressDetails(EditDressDetailsModel model)
         {
-            await connection.ExecuteAsync(
-                @"UPDATE Dresses SET DressName = @DressName, DressWebpage = @DressWebpage, Price = @Price, ProductDescription = @ProductDescription, DressType = @DressType, DressApproval = @DressApproval, Rating = @Rating, ShopId = @ShopId,  ImageId = @ImageId) 
-                        WHERE DressId = @DressId",
+            var sql =
+                @"UPDATE Dresses SET
+                DressName = @DressName,
+                DressWebpage = @DressWebpage,
+                Price = @Price,
+                ProductDescription = @ProductDescription,
+                DressType = @DressType,
+                ShopId = @ShopId,
+                ImageId = @ImageId
+                WHERE DressId = @DressId";
+
+            await connection.ExecuteAsync(sql,
                 new
                 {
                     model.DressId,
@@ -178,13 +190,12 @@ namespace Website.Controllers
                     model.Price,
                     model.ProductDescription,
                     DressType = MapDressType(model.DressType.Value),
-                    Rating = (int?)null,
                     ShopID = model.Shop,
                     ImageID = model.Image,
                 }
 
             );
-            return RedirectToAction(nameof(EditDressDetails));
+            return RedirectToAction(nameof(GetDressDetails));
         }
         
     }

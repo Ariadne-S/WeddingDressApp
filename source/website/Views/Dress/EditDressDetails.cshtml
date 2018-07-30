@@ -12,7 +12,7 @@
 
 <div class="row">
     <div class="col-md-4">
-        <form asp-action="GetNewDress">
+        <form asp-action="UpdateDressDetails" asp-route-id="@Model.DressId">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <div class="new-dress-WebpageUrl">
                 <label asp-for="DressWebpage" class="control-label"></label>
@@ -36,11 +36,12 @@
             </div>
             <div class="btn-group btn-group-toggle" data-toggle="buttons">
                 <label class="btn btn-secondary active">
-                    <input type="radio" name="options" id="option1" autocomplete="off" checked> Bride
+                    <input type="radio" asp-for="DressType" checked value="Bride"> Bride
                 </label>
                 <label class="btn btn-secondary">
-                    <input type="radio" name="options" id="option2" autocomplete="off"> Bridesmaid
+                    <input type="radio" asp-for="DressType" autocomplete="off" value="Bridesmaid"> Bridesmaid
                 </label>
+                <span asp-validation-for="DressType" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <input type="submit" value="Save" class="btn btn-default" />
