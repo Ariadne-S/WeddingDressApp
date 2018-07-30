@@ -8,6 +8,7 @@ namespace Website.Models
 
     public class DressDetailsModel
     {
+        public Guid? DressId { get; set; }
         public string DressWebpage { get; set; }    
         public string Name { get; set; }
         public string Image { get; set; }

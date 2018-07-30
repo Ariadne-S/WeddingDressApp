@@ -34,7 +34,7 @@ namespace Website.Controllers
                 {
                     return new DressItem()
                     {
-                        Id = dress.DressId,
+                        DressId = dress.DressId,
                         Name = dress.DressName,
                         Price = dress.Price.ToString("C"),
                         Shop = "Need to do",

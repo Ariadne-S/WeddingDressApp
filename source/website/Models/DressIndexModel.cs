@@ -13,7 +13,7 @@ namespace Website.Models
 
     public class DressItem
     {
-        public Guid Id { get; set; }
+        public Guid DressId { get; set; }
 
         public string Name { get; set; }
         public string Image { get; set; }

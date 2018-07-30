@@ -30,7 +30,7 @@
 <div>
     @foreach (var dress in Model.Dresses)
     {
-    <a asp-action="GetDressDetails" asp-route-id="@dress.Id">
+    <a asp-action="GetDressDetails" asp-route-id="@dress.DressId">
         <div class="dress-item">
             <div class="dress-image">
                 <img src="@(dress.Image ?? "/images/placeholder.jpg")" />
