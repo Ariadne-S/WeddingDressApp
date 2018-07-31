@@ -29,9 +29,12 @@
 <div class="dress-recommendation">This dress was recommended by @Model.Recommendation</div>
 
 <div class="dress-details-buttons">
+    <a asp-action="EditDressDetails" asp-route-id="@Model.DressId">
         <div class="edit">Edit</div>
-
+    </a>
+    <a asp-action="DeleteDressDetails" asp-route-id="@Model.DressId">
         <div class="delete">Delete</div>
+    </a>
 </div>
 
 <div class="dress-comments">
