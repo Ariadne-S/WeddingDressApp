@@ -11,7 +11,13 @@
 	Rating Int,
 	ShopId UniqueIdentifier,
 	WeddingId UniqueIdentifier,
-	ImageId UniqueIdentifier
+	ImageId UniqueIdentifier,
+	CreatedBy UniqueIdentifier NOT NULL,
+	CreatedAt datetime2 NOT NULL,
+	ModifiedBy UniqueIdentifier NOT NULL,
+	ModifiedAt datetime2 NOT NULL,
+	Deleted bit NOT NULL default 0,
+	DelatedAt datetime2
 )
 CREATE CLUSTERED INDEX DressesSeqId ON dbo.Dresses(SequentialId)
 
@@ -21,7 +27,11 @@ CREATE TABLE Shops (
     ShopName nVarChar(25) NOT NULL,  
 	ShopWebpage nVarChar (500),
 	ShopLocation nVarChar (30),
-	ImageId UniqueIdentifier NOT NULL
+	ImageId UniqueIdentifier NOT NULL,
+	CreatedBy UniqueIdentifier NOT NULL,
+	CreatedAt datetime2 NOT NULL,
+	ModifiedBy UniqueIdentifier NOT NULL,
+	ModifiedAt datetime2 NOT NULL
 )
 CREATE CLUSTERED INDEX ShopsSeqId ON dbo.Shops(SequentialId)
 
@@ -72,8 +82,12 @@ CREATE CLUSTERED INDEX GuestsSeqId ON dbo.Guests(SequentialId)
 CREATE TABLE Comments (
 	CommentId UniqueIdentifier PRIMARY KEY NONCLUSTERED NOT NULL,
 	SequentialId Int identity NOT NULL,
-	UserId UniqueIdentifier NOT NULL,
 	DressId UniqueIdentifier NOT NULL,
 	Comment VarChar (256) NOT NULL,
-	CommentDate datetime2 NOT NULL,
-	)
+	CreatedBy UniqueIdentifier NOT NULL,
+	CreatedAt datetime2 NOT NULL,
+	ModifiedBy UniqueIdentifier NOT NULL,
+	ModifiedAt datetime2 NOT NULL,
+	Deleted bit NOT NULL default 0,
+	DelatedAt datetime2
+)

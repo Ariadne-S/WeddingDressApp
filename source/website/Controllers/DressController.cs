@@ -166,8 +166,7 @@ namespace Website.Controllers
             return View(model);
         }
 
-        [HttpPost("{dressId}")]
-        [AutoValidateModel(nameof(EditDressDetails))]
+        [HttpPost("{deleted=dressId}")]
         public async Task<IActionResult> UpdateDressDetails(EditDressDetailsModel model)
         {
             var sql =
@@ -197,6 +196,26 @@ namespace Website.Controllers
             );
             return RedirectToAction(nameof(GetDressDetails));
         }
-        
+
+
+        [HttpPost("{dressId}")]
+        public async Task<IActionResult> DeleteDressDetails(Guid dressId)
+        {
+            var sql =
+                @"DELETE Dress 
+                DressName = @DressName,
+                DressWebpage = @DressWebpage,
+                Price = @Price,
+                ProductDescription = @ProductDescription,
+                DressType = @DressType,
+                ShopId = @ShopId,
+                ImageId = @ImageId
+                WHERE DressId = @DressId";
+
+            await connection.ExecuteAsync(sql,
+                new
+                { });
+            return RedirectToAction(nameof(GetDressDetails));
+        }
     }
 }

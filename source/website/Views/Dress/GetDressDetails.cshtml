@@ -28,33 +28,36 @@
 
 <div class="dress-recommendation">This dress was recommended by @Model.Recommendation</div>
 
-<div class="dress-details-buttons">
-    <a asp-action="EditDressDetails" asp-route-id="@Model.DressId">
-        <div class="edit">Edit</div>
-    </a>
-    <a asp-action="DeleteDressDetails" asp-route-id="@Model.DressId">
-        <div class="delete">Delete</div>
-    </a>
-</div>
-
 <div class="dress-comments">
-    <div class= "previous-comments">
-        @foreach (var comment in Model.Comments) {
-        <div class="comment">@comment</div>
+    <div class="previous-comments">
+        @foreach (var comment in Model.Comments)
+        {
+            <div class="comment">@comment</div>
         }
     </div>
 
     <form asp-action="NewComment">
         <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <div class="add-new-comment">
-                <label asp-for="NewComment" class="control-label">Add Comment</label>
-                <input asp-for="NewComment" class="form-control" />
-                <span asp-validation-for="NewComment" class="text-danger"></span>
-            </div>
+        <div class="add-new-comment">
+            <label asp-for="NewComment" class="control-label">Add Comment</label>
+            <input asp-for="NewComment" class="form-control" />
+            <span asp-validation-for="NewComment" class="text-danger"></span>
+        </div>
         <div class="form-group">
             <input type="submit" value="Save" class="btn btn-default" />
         </div>
     </form>
+
+    <div class="dress-details-buttons">
+        <a asp-action="EditDressDetails" asp-route-id="@Model.DressId">
+            <div class="edit">Edit</div>
+        </a>
+        <a asp-action="DeleteDressDetails" asp-route-id="@Model.DressId">
+            <div class="delete">Delete</div>
+        </a>
+    </div>
+
+
 </div>
 
 
