@@ -13,11 +13,16 @@ namespace Website.Entities
         public decimal Price { get; set; }
         public string ProductDescription { get; set; }
         public DressType? DressType { get; set; }
-        public Guid RecommendedBy { get; set; }
         public DressApproval DressApproval { get; set; }
         public int? Rating { get; set; }
         public Guid ShopId { get; set; }
         public Guid WeddingId { get; set; }
         public Guid ImageId { get; set; }
+        public Guid CreatedBy { get; set; }
+        public DateTimeOffset CreatedAt { get; set; }
+        public Guid ModifiedBy { get; set; }
+        public DateTimeOffset ModifiedAt { get; set; }
+        public Boolean Deleted { get; set; }
+        public DateTimeOffset? DeletedAt { get; set; }
     }
 }

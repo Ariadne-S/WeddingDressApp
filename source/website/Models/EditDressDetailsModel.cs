@@ -18,5 +18,7 @@ namespace Website.Models
             public string Rating { get; set; }
             public string ProductDescription { get; set; }
             public DressType? DressType { get; set; }
+            public Guid ModifiedBy { get; set; }
+            public DateTimeOffset ModifiedAt { get; set; }
     }
 }

@@ -24,12 +24,19 @@ namespace Website.Controllers
         }
 
         [HttpGet("")]
-        public IActionResult Home()
+        public IActionResult Home(DressesFilterModel model)
         {
             var dresses =
                 connection
                 .Query<DressEntity>(
-                    "Select DressId, DressName, DressWebpage, Price, ProductDescription, DressType, RecommendedBy, DressApproval, Rating, ShopId, ImageId FROM Dresses")
+                    "Select DressId, DressName, DressWebpage, Price, ProductDescription, DressType, DressApproval, Rating, ShopId, CreatedBy, ImageId, Deleted " +
+                    "FROM Dresses " +
+                    "Where DressType = @DressType " +
+                    "And (Deleted <> 1 OR DressId = @DeletedDressId)",
+                    new {
+                        DressType = model.DressType,
+                        DeletedDressId = model.DeletedDressId
+                    })
                 .Select(dress =>
                 {
                     return new DressItem()
@@ -40,18 +47,18 @@ namespace Website.Controllers
                         Shop = "Need to do",
                         Description = dress.ProductDescription,
                         Image = "Need to do",
-                        RecommendedBy = "To do",
+                        CreatedBy = Guid.Empty,
                         Approval = dress.DressApproval.ToString(),
                         Rating = "2",
                     };
                 })
                 .ToList();
 
-            var model = new DressIndexModel() {
+            var viewModel = new DressIndexModel() {
                 DressType = DressType.Bride,
                 Dresses = dresses
             };
-            return View(model);
+            return View(viewModel);
         }
 
         [HttpPost("new")]
@@ -91,26 +98,31 @@ namespace Website.Controllers
             var dressId = Guid.NewGuid();
             //var x = ModelState;
             await connection.ExecuteAsync(
-                @"Insert Dresses(DressId, DressName, DressWebpage, Price, ProductDescription, DressType, RecommendedBy, DressApproval, Rating, ShopId, WeddingId, ImageId) 
-                       values (@DressId, @DressName, @DressWebpage, @Price, @ProductDescription, @DressType, @RecommendedBy, @DressApproval, @Rating, @ShopId, @WeddingId, @ImageId)",
+                @"Insert Dresses(DressId, DressName, DressWebpage, Price, ProductDescription, DressType, DressApproval, Rating, ShopId, WeddingId, ImageId, CreatedBy, CreatedAt, ModifiedBy, ModifiedAt, Deleted, DeletedAt) 
+                       values (@DressId, @DressName, @DressWebpage, @Price, @ProductDescription, @DressType, @DressApproval, @Rating, @ShopId, @WeddingId, @ImageId, @CreatedBy, @CreatedAt, @ModifiedBy, @ModifiedAt, @Deleted, @DeletedAt)",
                     new DressEntity()
                     {
                         DressId = dressId,
-                        DressName = "",
+                        DressName = model.Name,
                         DressWebpage = model.Url,
-                        Price = 0,
-                        ProductDescription = "",
+                        Price = model.Price.Value,
+                        ProductDescription = model.Description,
                         DressType = MapDressType(model.DressType.Value),
-                        RecommendedBy = Guid.Empty, //currentuser
                         DressApproval = DressApproval.NeedsApproval,
                         Rating = null,
-                        ShopId = Guid.NewGuid(),
+                        ShopId = Guid.Empty, 
                         WeddingId = Guid.Empty,
-                        ImageId = Guid.Empty
+                        ImageId = Guid.Empty,
+                        CreatedBy = Guid.Empty, //curent user
+                        CreatedAt = DateTimeOffset.Now,
+                        ModifiedBy = Guid.Empty,
+                        ModifiedAt = DateTimeOffset.Now,
+                        Deleted = false,
+                        DeletedAt = null
                     }
 
                 );
-            return RedirectToAction(nameof(GetDressDetails), new { Id = dressId });
+            return RedirectToAction(nameof(GetDressDetails), new { dressId = dressId });
         }
 
         [HttpGet("{dressId}")]
@@ -119,7 +131,7 @@ namespace Website.Controllers
             var dress =
                 connection
                 .Query<DressEntity>(
-                    "Select DressId, DressName, DressWebpage, Price, ProductDescription, DressType, RecommendedBy, DressApproval, Rating, ShopId, ImageId FROM Dresses WHERE DressId = @DressId", new { DressId = dressId })
+                    "Select DressId, DressName, DressWebpage, Price, ProductDescription, DressType, DressApproval, Rating, ShopId, ImageId, CreatedBy FROM Dresses WHERE DressId = @DressId", new { DressId = dressId })
                 .Single();
 
             var model = new DressDetailsModel()
@@ -127,16 +139,16 @@ namespace Website.Controllers
                 Name = dress.DressName,
                 DressWebpage = dress.DressWebpage,
                 Price = dress.Price.ToString("C"),
-                Shop = "Need to do",
+                Shop = dress.ShopId,
                 Description = dress.ProductDescription,
                 Image = "Need to do",
-                Recommendation = "To do",
                 Comments = new List<string>() {
                     "Love Love Love!",
                     "So pretty!",
                 },
                 Approval = dress.DressApproval.ToString(),
-                Rating = "2",
+                Rating = dress.Rating,
+                CreatedBy = dress.CreatedBy, //current user
                 DressType = DressType.Bride,
             };
             return View(model);
@@ -148,7 +160,7 @@ namespace Website.Controllers
             var dresses =
                 await connection
                 .QueryAsync<DressEntity>(
-                    "Select DressId, DressName, DressWebpage, Price, ProductDescription, DressType, ShopId, ImageId FROM Dresses WHERE DressId = @DressId",
+                    "Select DressId, DressName, DressWebpage, Price, ProductDescription, DressType, ShopId, ImageId, ModifiedBy, ModifiedAt FROM Dresses WHERE DressId = @DressId",
                     new { DressId = dressId });
             var dress = dresses.Single();
 
@@ -162,11 +174,13 @@ namespace Website.Controllers
                 ProductDescription = dress.ProductDescription,
                 Image = "Need to do",
                 DressType = DressType.Bride,
+                ModifiedBy = Guid.Empty, //current user
+                ModifiedAt = DateTimeOffset.Now
             };
             return View(model);
         }
 
-        [HttpPost("{deleted=dressId}")]
+        [HttpPost("{dressId}")]
         public async Task<IActionResult> UpdateDressDetails(EditDressDetailsModel model)
         {
             var sql =
@@ -177,7 +191,9 @@ namespace Website.Controllers
                 ProductDescription = @ProductDescription,
                 DressType = @DressType,
                 ShopId = @ShopId,
-                ImageId = @ImageId
+                ImageId = @ImageId,
+                ModifiedBy = @ModifiedBy,
+                ModifiedAt = @ModifiedAt
                 WHERE DressId = @DressId";
 
             await connection.ExecuteAsync(sql,
@@ -191,6 +207,8 @@ namespace Website.Controllers
                     DressType = MapDressType(model.DressType.Value),
                     ShopID = model.Shop,
                     ImageID = model.Image,
+                    ModifiedBy = Guid.Empty,
+                    ModifiedAt = DateTimeOffset.Now
                 }
 
             );
@@ -198,24 +216,24 @@ namespace Website.Controllers
         }
 
 
-        [HttpPost("{dressId}")]
+        [HttpPost("{dressId}/delete")]
         public async Task<IActionResult> DeleteDressDetails(Guid dressId)
         {
             var sql =
-                @"DELETE Dress 
-                DressName = @DressName,
-                DressWebpage = @DressWebpage,
-                Price = @Price,
-                ProductDescription = @ProductDescription,
-                DressType = @DressType,
-                ShopId = @ShopId,
-                ImageId = @ImageId
+                @"UPDATE Dresses SET  
+                Deleted = @Deleted
+                DeletedAt = @DeletedAt
                 WHERE DressId = @DressId";
 
             await connection.ExecuteAsync(sql,
                 new
-                { });
-            return RedirectToAction(nameof(GetDressDetails));
+                {
+                    DressId = dressId,
+                    Deleted = true,
+                    DeletedAt = DateTimeOffset.Now
+                });
+
+            return RedirectToAction(nameof(Home), new { DeletedDressId = dressId });
         }
     }
 }

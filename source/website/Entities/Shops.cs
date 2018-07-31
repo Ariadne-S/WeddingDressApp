@@ -12,5 +12,9 @@ namespace Website.Entities
         public string ShopWebsite { get; set; }
         public string ShopLocation { get; set; }
         public Guid ImageId { get; set; }
+        public Guid CreatedBy { get; set; }
+        public DateTimeOffset CreatedAt { get; set; }
+        public Guid ModifiedBy { get; set; }
+        public DateTimeOffset ModifiedAt { get; set; }
     }
 }

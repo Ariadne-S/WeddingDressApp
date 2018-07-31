@@ -6,7 +6,6 @@
     Price money,  
     ProductDescription nVarChar (max),
 	DressType VarChar (11) NOT NULL,
-	RecommendedBy UniqueIdentifier,
 	DressApproval VarChar (8) NOT NULL,
 	Rating Int,
 	ShopId UniqueIdentifier,
@@ -17,7 +16,7 @@
 	ModifiedBy UniqueIdentifier NOT NULL,
 	ModifiedAt datetime2 NOT NULL,
 	Deleted bit NOT NULL default 0,
-	DelatedAt datetime2
+	DeletedAt datetime2
 )
 CREATE CLUSTERED INDEX DressesSeqId ON dbo.Dresses(SequentialId)
 
@@ -36,7 +35,6 @@ CREATE TABLE Shops (
 CREATE CLUSTERED INDEX ShopsSeqId ON dbo.Shops(SequentialId)
 
 CREATE TABLE DressImages (
-	--ImageJoinId UniqueIdentifier PRIMARY KEY NONCLUSTERED NOT NULL,
 	SequentialId Int identity Primary Key NOT NULL,
     DressId UniqueIdentifier NOT NULL,  
 	ImageId UniqueIdentifier NOT NULL,
@@ -89,5 +87,5 @@ CREATE TABLE Comments (
 	ModifiedBy UniqueIdentifier NOT NULL,
 	ModifiedAt datetime2 NOT NULL,
 	Deleted bit NOT NULL default 0,
-	DelatedAt datetime2
+	DeletedAt datetime2
 )
