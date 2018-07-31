@@ -12,5 +12,11 @@ namespace Website.Entities
         public Guid DressId { get; set; }
         public string Comment { get; set; }
         public DateTimeOffset CommentDate { get; set; }
+        public Guid CreatedBy { get; set; }
+        public DateTimeOffset CreatedAt { get; set; }
+        public Guid ModifedBy { get; set; }
+        public DateTimeOffset ModifiedAt { get; set; }
+        public Boolean Deleted { get; set; }
+        public DateTimeOffset MDeletedAt { get; set; }
     }
 }
