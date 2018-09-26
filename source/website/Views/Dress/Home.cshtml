@@ -28,8 +28,8 @@
 </div>
 
 <div>
-    @foreach (var dress in Model.Dresses)
-    {
+    @foreach (var dress in Model.Dresses) {
+        if (!dress.Deleted) {
     <a asp-action="GetDressDetails" asp-route-dressId="@dress.DressId">
         <div class="dress-item">
             <div class="dress-image">
@@ -45,8 +45,7 @@
                     @dress.Shop
                 </div>
 
-                @if (dress.Price != null)
-                {
+                @if (dress.Price != null) {
                     <div class="dress-price">
                         | @dress.Price
                     </div>
@@ -67,5 +66,13 @@
             </div>
         </div>
     </a>
+    } else {
+    <div class="dress-deleted">
+        The dress has been deleted.
+        <form asp-action="UndoDelete" asp-route-dressId="@dress.DressId">
+            <button class="undo-delete">Undo</button>
+        </form>
+    </div>
+        }
     }
 </div>

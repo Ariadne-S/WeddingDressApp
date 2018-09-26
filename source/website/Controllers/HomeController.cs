@@ -12,7 +12,7 @@ namespace Website.Controllers
     {
         public IActionResult Index()
         {
-            return View();
+            return Redirect("dress");
         }
 
         public IActionResult About()

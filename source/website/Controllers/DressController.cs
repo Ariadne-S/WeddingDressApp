@@ -37,10 +37,8 @@ namespace Website.Controllers
                         DressType = model.DressType,
                         DeletedDressId = model.DeletedDressId
                     })
-                .Select(dress =>
-                {
-                    return new DressItem()
-                    {
+                .Select(dress => {        
+                    return new DressItem() {
                         DressId = dress.DressId,
                         Name = dress.DressName,
                         Price = dress.Price.ToString("C"),
@@ -50,6 +48,7 @@ namespace Website.Controllers
                         CreatedBy = Guid.Empty,
                         Approval = dress.DressApproval.ToString(),
                         Rating = "2",
+                        Deleted = dress.Deleted
                     };
                 })
                 .ToList();
@@ -65,23 +64,22 @@ namespace Website.Controllers
         public IActionResult NewDress(AddDressUrlModel model)
         {
             // TODO: Scrapes website
-            var responseModel = new GetNewDressModel()
-            {
-                Name = "",
-                Price = "",
-                Shop = "",
-                Description = "",
-                Image = null,
-                DressType = null,
-                Url = model.WebpageUrl
-            };
+            var responseModel =
+                new GetNewDressModel() {
+                    Name = "",
+                    Price = "",
+                    Shop = "",
+                    Description = "",
+                    Image = null,
+                    DressType = null,
+                    Url = model.WebpageUrl
+                };
             return View("GetNewDress", responseModel);
         }
 
         private Website.Entities.DressType MapDressType(Website.Models.DressType modelDressType)
         {
-            switch (modelDressType)
-            {
+            switch (modelDressType) {
                 case DressType.Bride:
                     return Website.Entities.DressType.Bride;
                 case DressType.BridesMaid:
@@ -100,8 +98,7 @@ namespace Website.Controllers
             await connection.ExecuteAsync(
                 @"Insert Dresses(DressId, DressName, DressWebpage, Price, ProductDescription, DressType, DressApproval, Rating, ShopId, WeddingId, ImageId, CreatedBy, CreatedAt, ModifiedBy, ModifiedAt, Deleted, DeletedAt) 
                        values (@DressId, @DressName, @DressWebpage, @Price, @ProductDescription, @DressType, @DressApproval, @Rating, @ShopId, @WeddingId, @ImageId, @CreatedBy, @CreatedAt, @ModifiedBy, @ModifiedAt, @Deleted, @DeletedAt)",
-                    new DressEntity()
-                    {
+                    new DressEntity() {
                         DressId = dressId,
                         DressName = model.Name,
                         DressWebpage = model.Url,
@@ -134,8 +131,7 @@ namespace Website.Controllers
                     "Select DressId, DressName, DressWebpage, Price, ProductDescription, DressType, DressApproval, Rating, ShopId, ImageId, CreatedBy FROM Dresses WHERE DressId = @DressId", new { DressId = dressId })
                 .Single();
 
-            var model = new DressDetailsModel()
-            {
+            var model = new DressDetailsModel() {
                 Name = dress.DressName,
                 DressWebpage = dress.DressWebpage,
                 Price = dress.Price.ToString("C"),
@@ -220,14 +216,13 @@ namespace Website.Controllers
         public async Task<IActionResult> DeleteDressDetails(Guid dressId)
         {
             var sql =
-                @"UPDATE Dresses SET  
-                Deleted = @Deleted
+                @"UPDATE Dresses SET
+                Deleted = @Deleted,
                 DeletedAt = @DeletedAt
                 WHERE DressId = @DressId";
 
             await connection.ExecuteAsync(sql,
-                new
-                {
+                new {
                     DressId = dressId,
                     Deleted = true,
                     DeletedAt = DateTimeOffset.Now
@@ -235,5 +230,22 @@ namespace Website.Controllers
 
             return RedirectToAction(nameof(Home), new { DeletedDressId = dressId });
         }
+
+        [HttpPost("{dressId}/UndoDelete")]
+        public async Task<IActionResult> UndoDelete (Guid dressId)
+        {
+            var sql =
+                @"UPDATE Dresses SET
+                Deleted = @Deleted
+                WHERE DressId = @DressId";
+
+            await connection.ExecuteAsync(sql,
+                new {
+                    DressId = dressId,
+                    Deleted = false,
+                });
+            return RedirectToAction(nameof(GetDressDetails));
+        }
+
     }
 }

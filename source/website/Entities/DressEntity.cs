@@ -22,7 +22,7 @@ namespace Website.Entities
         public DateTimeOffset CreatedAt { get; set; }
         public Guid ModifiedBy { get; set; }
         public DateTimeOffset ModifiedAt { get; set; }
-        public Boolean Deleted { get; set; }
+        public bool Deleted { get; set; }
         public DateTimeOffset? DeletedAt { get; set; }
     }
 }

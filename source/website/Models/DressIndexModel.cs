@@ -23,5 +23,6 @@ namespace Website.Models
         public string Rating { get; set; }
         public string Approval { get; set; }
         public Guid CreatedBy { get; set; }
+        public bool Deleted { get; set; }
     }
 }

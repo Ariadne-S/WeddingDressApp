@@ -87,6 +87,8 @@ dress-item-header {
 
 .bride-options {
     grid-area: rt;
+    justify-self: end;
+    text-align: right;
 }
 
 

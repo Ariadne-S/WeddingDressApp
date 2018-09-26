@@ -52,9 +52,9 @@
         <a asp-action="EditDressDetails" asp-route-id="@Model.DressId">
             <div class="edit">Edit</div>
         </a>
-        <a asp-action="DeleteDressDetails" asp-route-id="@Model.DressId">
-            <div class="delete">Delete</div>
-        </a>
+        <form asp-action="DeleteDressDetails" asp-route-id="@Model.DressId">
+            <button class="delete">Delete</button>
+        </form>
     </div>
 
 
