@@ -8,7 +8,7 @@ namespace Website
     {
         protected override void Load(ContainerBuilder builder)
         {
-            var connectionString = "Server=LIMITING-FACTOR\\SQLEXPRESS2017; Database=WeddingDressApp; Trusted_connection=true";
+            var connectionString = "Server=localhost\\SQLEXPRESS; Database=WeddingDressApp; Trusted_connection=true";
             builder
                 .Register(x =>
                 {

@@ -11,7 +11,7 @@ namespace WeddingDressApp.Up
         {
             var connectionString =
                 args.FirstOrDefault()
-                ?? "Server=LIMITING-FACTOR\\SQLEXPRESS2017; Database=WeddingDressApp; Trusted_connection=true";
+                ?? "Server=localhost\\SQLEXPRESS; Database=WeddingDressApp; Trusted_connection=true";
 
             var upgrader =
                 DeployChanges.To
