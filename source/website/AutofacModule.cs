@@ -10,14 +10,22 @@ namespace Website
         {
             var connectionString = "Server=localhost\\SQLEXPRESS; Database=WeddingDressApp; Trusted_connection=true";
             builder
-                .Register(x =>
-                {
+                .Register(x => {
                     var connection = new SqlConnection(connectionString);
                     connection.Open();
                     return connection;
                 })
                 .As<IDbConnection>()
                 .InstancePerLifetimeScope();
+
+            builder
+                .Register(x => {
+                    var dbConnection = x.Resolve<IDbConnection>();
+                    return dbConnection.BeginTransaction();
+                })
+                .As<IDbTransaction>()
+                .InstancePerLifetimeScope();
+            
         }
     }
 }

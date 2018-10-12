@@ -16,11 +16,13 @@ namespace Website.Controllers
     [Route("/dress")]
     public class DressController : Controller
     {
-        IDbConnection connection;
+        readonly IDbConnection connection;
+        readonly IDbTransaction dbTransaction;
 
-        public DressController(IDbConnection dbConnection)
+        public DressController(IDbConnection dbConnection, IDbTransaction dbTransaction)
         {
             this.connection = dbConnection;
+            this.dbTransaction = dbTransaction;
         }
 
         [HttpGet("")]
@@ -36,7 +38,7 @@ namespace Website.Controllers
                     new {
                         model.DressType,
                         model.DeletedDressId
-                    })
+                    }, dbTransaction)
                 .Select(dress => {        
                     return new DressItem() {
                         DressId = dress.DressId,
@@ -119,10 +121,10 @@ namespace Website.Controllers
                         ModifiedAt = DateTimeOffset.Now,
                         Deleted = false,
                         DeletedAt = null
-                    }
+                    },
+                    dbTransaction
                 );
 
-            // Insert Into
             var image = model.Image;
             var imageFileName = image.FileName;
             var imageName = System.IO.Path.GetFileName(image.FileName);
@@ -139,7 +141,8 @@ namespace Website.Controllers
                     FileExtension = imageExtension,
                     FileData = imageContent,
                     Hash = imageHash,
-                }
+                },
+                dbTransaction
             );
 
             await connection.ExecuteAsync(
@@ -149,7 +152,8 @@ namespace Website.Controllers
                     DressId = dressId,
                     ImageID = imageId,
                     Favourite = false
-                }
+                },
+                dbTransaction
             );
 
             return RedirectToAction(nameof(GetDressDetails), new { dressId });
@@ -168,7 +172,7 @@ namespace Website.Controllers
             var dress =
                 connection
                 .Query<DressEntity>(
-                    "Select DressId, DressName, DressWebpage, Price, ProductDescription, DressType, DressApproval, Rating, ShopId, ImageId, CreatedBy FROM Dresses WHERE DressId = @DressId", new { DressId = dressId })
+                    "Select DressId, DressName, DressWebpage, Price, ProductDescription, DressType, DressApproval, Rating, ShopId, ImageId, CreatedBy FROM Dresses WHERE DressId = @DressId", new { DressId = dressId }, dbTransaction)
                 .Single();
 
             var model = new DressDetailsModel() {
@@ -197,7 +201,7 @@ namespace Website.Controllers
                 await connection
                 .QueryAsync<DressEntity>(
                     "Select DressId, DressName, DressWebpage, Price, ProductDescription, DressType, ShopId, ImageId, ModifiedBy, ModifiedAt FROM Dresses WHERE DressId = @DressId",
-                    new { DressId = dressId });
+                    new { DressId = dressId }, dbTransaction);
             var dress = dresses.Single();
 
             var model = new EditDressDetailsModel()
@@ -245,7 +249,8 @@ namespace Website.Controllers
                     ImageID = model.Image,
                     ModifiedBy = Guid.Empty,
                     ModifiedAt = DateTimeOffset.Now
-                }
+                },
+                dbTransaction
 
             );
             return RedirectToAction(nameof(GetDressDetails));
@@ -266,7 +271,7 @@ namespace Website.Controllers
                     DressId = dressId,
                     Deleted = true,
                     DeletedAt = DateTimeOffset.Now
-                });
+                }, dbTransaction);
 
             return RedirectToAction(nameof(Home), new { DeletedDressId = dressId });
         }
@@ -283,7 +288,7 @@ namespace Website.Controllers
                 new {
                     DressId = dressId,
                     Deleted = false,
-                });
+                }, dbTransaction);
             return RedirectToAction(nameof(GetDressDetails));
         }
 
