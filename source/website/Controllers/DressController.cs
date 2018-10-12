@@ -131,7 +131,7 @@ namespace Website.Controllers
             var imageHash = GetByteArrayHash(imageContent);
 
             await connection.ExecuteAsync(
-                @"Insert IMAGES(ImageId, FileName, FileExtension, FileData, Hash) 
+                @"Insert Images (ImageId, FileName, FileExtension, FileData, Hash) 
                     values (@ImageId, @FileName, @FileExtension, @FileData, @Hash)",
                 new Images() {
                     ImageID = imageId,
@@ -139,11 +139,20 @@ namespace Website.Controllers
                     FileExtension = imageExtension,
                     FileData = imageContent,
                     Hash = imageHash,
-                    ImageFavourite = false
                 }
             );
 
-            return RedirectToAction(nameof(GetDressDetails), new { dressId = dressId });
+            await connection.ExecuteAsync(
+                @"Insert DressImages (DressId, ImageId, Favourite) 
+                    values (@DressId, @ImageId, @Favourite)",
+                new DressImages{
+                    DressId = dressId,
+                    ImageID = imageId,
+                    Favourite = false
+                }
+            );
+
+            return RedirectToAction(nameof(GetDressDetails), new { dressId });
         }
 
         private string GetByteArrayHash(byte[] byteArray)
