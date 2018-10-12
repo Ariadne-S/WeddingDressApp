@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
@@ -10,6 +9,7 @@ using Dapper;
 using Website.Entities;
 using DressType = Website.Models.DressType;
 using AutomaticModelStateValidation;
+using System.Security.Cryptography;
 
 namespace Website.Controllers
 {
@@ -34,8 +34,8 @@ namespace Website.Controllers
                     "Where DressType = @DressType " +
                     "And (Deleted <> 1 OR DressId = @DeletedDressId)",
                     new {
-                        DressType = model.DressType,
-                        DeletedDressId = model.DeletedDressId
+                        model.DressType,
+                        model.DeletedDressId
                     })
                 .Select(dress => {        
                     return new DressItem() {
@@ -60,6 +60,7 @@ namespace Website.Controllers
             return View(viewModel);
         }
 
+        [HttpGet("new")]
         [HttpPost("new")]
         public IActionResult NewDress(AddDressUrlModel model)
         {
@@ -77,15 +78,15 @@ namespace Website.Controllers
             return View("GetNewDress", responseModel);
         }
 
-        private Website.Entities.DressType MapDressType(Website.Models.DressType modelDressType)
+        private Entities.DressType MapDressType(DressType modelDressType)
         {
             switch (modelDressType) {
                 case DressType.Bride:
-                    return Website.Entities.DressType.Bride;
+                    return Entities.DressType.Bride;
                 case DressType.BridesMaid:
-                    return Website.Entities.DressType.BridesMaid;
+                    return Entities.DressType.BridesMaid;
             }
-            return Website.Entities.DressType.Bride;
+            return Entities.DressType.Bride;
         }
 
 
@@ -94,6 +95,8 @@ namespace Website.Controllers
         public async Task<IActionResult> SaveDress(SaveDressModel model)
         {
             var dressId = Guid.NewGuid();
+            var imageId = Guid.NewGuid();
+
             //var x = ModelState;
             await connection.ExecuteAsync(
                 @"Insert Dresses(DressId, DressName, DressWebpage, Price, ProductDescription, DressType, DressApproval, Rating, ShopId, WeddingId, ImageId, CreatedBy, CreatedAt, ModifiedBy, ModifiedAt, Deleted, DeletedAt) 
@@ -109,7 +112,7 @@ namespace Website.Controllers
                         Rating = null,
                         ShopId = Guid.Empty, 
                         WeddingId = Guid.Empty,
-                        ImageId = Guid.Empty,
+                        ImageId = imageId,
                         CreatedBy = Guid.Empty, //curent user
                         CreatedAt = DateTimeOffset.Now,
                         ModifiedBy = Guid.Empty,
@@ -117,9 +120,37 @@ namespace Website.Controllers
                         Deleted = false,
                         DeletedAt = null
                     }
-
                 );
+
+            // Insert Into
+            var image = model.Image;
+            var imageFileName = image.FileName;
+            var imageName = System.IO.Path.GetFileName(image.FileName);
+            var imageExtension = System.IO.Path.GetExtension(image.FileName);
+            var imageContent = image.OpenReadStream().ReadFullyToArray();
+            var imageHash = GetByteArrayHash(imageContent);
+
+            await connection.ExecuteAsync(
+                @"Insert IMAGES(ImageId, FileName, FileExtension, FileData, Hash) 
+                    values (@ImageId, @FileName, @FileExtension, @FileData, @Hash)",
+                new Images() {
+                    ImageID = imageId,
+                    FileName = imageName,
+                    FileExtension = imageExtension,
+                    FileData = imageContent,
+                    Hash = imageHash,
+                    ImageFavourite = false
+                }
+            );
+
             return RedirectToAction(nameof(GetDressDetails), new { dressId = dressId });
+        }
+
+        private string GetByteArrayHash(byte[] byteArray)
+        {
+            using (SHA1CryptoServiceProvider sha1 = new SHA1CryptoServiceProvider()) {
+                return Convert.ToBase64String(sha1.ComputeHash(byteArray));
+            }
         }
 
         [HttpGet("{dressId}")]
