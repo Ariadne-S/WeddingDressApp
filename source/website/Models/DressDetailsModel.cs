@@ -11,7 +11,7 @@ namespace Website.Models
         public Guid? DressId { get; set; }
         public string DressWebpage { get; set; }    
         public string Name { get; set; }
-        public string Image { get; set; }
+        public Guid ImageId { get; set; }
         public Guid Shop { get; set; }
         public string Price { get; set; }
         public string Description { get; set; }

@@ -187,7 +187,7 @@ namespace Website.Controllers
                 Price = dress.Price.ToString("C"),
                 Shop = dress.ShopId,
                 Description = dress.ProductDescription,
-                Image = "Need to do",
+                ImageId = dress.ImageId,
                 Comments = new List<string>() {
                     "Love Love Love!",
                     "So pretty!",
