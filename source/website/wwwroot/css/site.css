@@ -140,8 +140,6 @@ dress-item-header {
     margin: auto;
 }
 
-
-
 .previous-comments {
     text-align: center;
 }
@@ -152,4 +150,11 @@ dress-item-header {
     border-top: 2px;
     border-top-style: solid;
     text-align: center;
+}
+
+.dress-image img {
+    -object-fit: cover;
+    object-fit: scale-down;
+    width: 100px;
+    height: 100px;
 }

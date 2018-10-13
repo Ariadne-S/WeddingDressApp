@@ -28,13 +28,24 @@ namespace Website.Controllers
         [HttpGet("")]
         public IActionResult Home(DressesFilterModel model)
         {
+            string sql =
+                @"SELECT d.DressId, d.DressName, d.DressWebpage, d.Price, d.ProductDescription, d.DressType, d.DressApproval, d.Rating, d.ShopId, d.CreatedBy, d.Deleted, i.ImageId
+                    FROM Dresses d
+                    FULL OUTER JOIN DressImages di on d.DressId = di.DressId
+                    FULL OUTER JOIN Images i on di.ImageId = i.ImageId
+                    WHERE d.DressType = @DressType 
+                    AND (d.Deleted <> 1 OR d.DressId = @DeletedDressId)
+                    AND (i.ImageId is null
+                        OR Exists (
+                            Select top 1 di2.DressId
+                            From DressImages di2
+                            Where di2.DressId = di.DressId
+                            Order By di2.[SequentialId], di2.[Favourite]))";
+
             var dresses =
                 connection
-                .Query<DressEntity>(
-                    "Select DressId, DressName, DressWebpage, Price, ProductDescription, DressType, DressApproval, Rating, ShopId, CreatedBy, ImageId, Deleted " +
-                    "FROM Dresses " +
-                    "Where DressType = @DressType " +
-                    "And (Deleted <> 1 OR DressId = @DeletedDressId)",
+                .Query<DressItemsQueryModel>(
+                    sql,
                     new {
                         model.DressType,
                         model.DeletedDressId
@@ -46,7 +57,7 @@ namespace Website.Controllers
                         Price = dress.Price.ToString("C"),
                         Shop = "Need to do",
                         Description = dress.ProductDescription,
-                        Image = "Need to do",
+                        ImageId = dress.ImageId,
                         CreatedBy = Guid.Empty,
                         Approval = dress.DressApproval.ToString(),
                         Rating = "2",
@@ -129,7 +140,7 @@ namespace Website.Controllers
             await connection.ExecuteAsync(
                 @"Insert Dresses(DressId, DressName, DressWebpage, Price, ProductDescription, DressType, DressApproval, Rating, ShopId, WeddingId, ImageId, CreatedBy, CreatedAt, ModifiedBy, ModifiedAt, Deleted, DeletedAt) 
                        values (@DressId, @DressName, @DressWebpage, @Price, @ProductDescription, @DressType, @DressApproval, @Rating, @ShopId, @WeddingId, @ImageId, @CreatedBy, @CreatedAt, @ModifiedBy, @ModifiedAt, @Deleted, @DeletedAt)",
-                    new DressEntity() {
+                    new DressItemsQueryModel() {
                         DressId = dressId,
                         DressName = model.Name,
                         DressWebpage = model.Url,
@@ -177,7 +188,7 @@ namespace Website.Controllers
         {
             var dress =
                 connection
-                .Query<DressEntity>(
+                .Query<DressItemsQueryModel>(
                     "Select DressId, DressName, DressWebpage, Price, ProductDescription, DressType, DressApproval, Rating, ShopId, ImageId, CreatedBy FROM Dresses WHERE DressId = @DressId", new { DressId = dressId }, dbTransaction)
                 .Single();
 
@@ -205,7 +216,7 @@ namespace Website.Controllers
         {
             var dresses =
                 await connection
-                .QueryAsync<DressEntity>(
+                .QueryAsync<DressItemsQueryModel>(
                     "Select DressId, DressName, DressWebpage, Price, ProductDescription, DressType, ShopId, ImageId, ModifiedBy, ModifiedAt FROM Dresses WHERE DressId = @DressId",
                     new { DressId = dressId }, dbTransaction);
             var dress = dresses.Single();

@@ -33,7 +33,7 @@
     <a asp-action="GetDressDetails" asp-route-dressId="@dress.DressId">
         <div class="dress-item">
             <div class="dress-image">
-                <img src="@(dress.Image ?? "/images/placeholder.jpg")" />
+                <img src="@Url.Action("GetImage", "Image", new { imageId = dress.ImageId})" />
             </div>
             <div class="dress-item-header">
 

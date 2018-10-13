@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace Website.Entities
 {
-    public class DressEntity
+    public class DressItemsQueryModel
     {
         public Guid DressId { get; set; }
 	    public string DressName { get; set; }
