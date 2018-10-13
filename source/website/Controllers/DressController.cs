@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Website.Models;
 using Dapper;
-using Website.Entities;
+using Website.DatabaseModels;
 using DressType = Website.Models.DressType;
 using AutomaticModelStateValidation;
 using System.Security.Cryptography;
@@ -36,8 +36,8 @@ namespace Website.Controllers
                     WHERE d.DressType = @DressType 
                     AND (d.Deleted <> 1 OR d.DressId = @DeletedDressId)
                     AND (i.ImageId is null
-                        OR Exists (
-                            Select top 1 di2.DressId
+                        OR i.ImageId = (
+                            Select top 1 di2.ImageId
                             From DressImages di2
                             Where di2.DressId = di.DressId
                             Order By di2.[Favourite], di2.[SequentialId]))
@@ -85,22 +85,22 @@ namespace Website.Controllers
                     Price = "",
                     Shop = "",
                     Description = "",
-                    Image = null,
+                    Images = null,
                     DressType = null,
                     Url = model.WebpageUrl
                 };
             return View("GetNewDress", responseModel);
         }
 
-        private Entities.DressType MapDressType(DressType modelDressType)
+        private DatabaseModels.DressType MapDressType(DressType modelDressType)
         {
             switch (modelDressType) {
                 case DressType.Bride:
-                    return Entities.DressType.Bride;
+                    return DatabaseModels.DressType.Bride;
                 case DressType.BridesMaid:
-                    return Entities.DressType.BridesMaid;
+                    return DatabaseModels.DressType.BridesMaid;
             }
-            return Entities.DressType.Bride;
+            return DatabaseModels.DressType.Bride;
         }
 
 
@@ -109,39 +109,50 @@ namespace Website.Controllers
         public async Task<IActionResult> SaveDress(SaveDressModel model)
         {
             var dressId = Guid.NewGuid();
-            var imageId = Guid.NewGuid();
+            foreach (var image in model.Images) {
 
-            var image = model.Image;
-            var imageFileName = image.FileName;
-            var imageName = System.IO.Path.GetFileName(image.FileName);
-            var imageExtension = System.IO.Path.GetExtension(image.FileName);
-            var imageContent = image.OpenReadStream().ReadFullyToArray();
-            var imageHash = GetByteArrayHash(imageContent);
+                var imageId = Guid.NewGuid();
+                var imageFileName = image.FileName;
+                var imageName = System.IO.Path.GetFileName(image.FileName);
+                var imageExtension = System.IO.Path.GetExtension(image.FileName);
+                var imageContent = image.OpenReadStream().ReadFullyToArray();
+                var imageHash = GetByteArrayHash(imageContent);
 
-            var result = await connection.QueryFirstOrDefaultAsync<Guid?>("Select ImageId From Images Where Hash = @Hash", new { Hash = imageHash }, dbTransaction);
+                var result = await connection.QueryFirstOrDefaultAsync<Guid?>("Select ImageId From Images Where Hash = @Hash", new { Hash = imageHash }, dbTransaction);
 
-            if (result == null) {
-                await connection.ExecuteAsync(
-                    @"Insert Images (ImageId, FileName, FileExtension, FileData, Hash) 
+                if (result == null) {
+                    await connection.ExecuteAsync(
+                        @"Insert Images (ImageId, FileName, FileExtension, FileData, Hash) 
                     values (@ImageId, @FileName, @FileExtension, @FileData, @Hash)",
-                    new Images() {
+                        new Images() {
+                            ImageID = imageId,
+                            FileName = imageName,
+                            FileExtension = imageExtension,
+                            FileData = imageContent,
+                            Hash = imageHash,
+                        },
+                        dbTransaction
+                    );
+                } else {
+                    imageId = result.Value;
+                }
+
+                await connection.ExecuteAsync(
+                    @"Insert DressImages (DressId, ImageId, Favourite) 
+                    values (@DressId, @ImageId, @Favourite)",
+                    new DressImages {
+                        DressId = dressId,
                         ImageID = imageId,
-                        FileName = imageName,
-                        FileExtension = imageExtension,
-                        FileData = imageContent,
-                        Hash = imageHash,
+                        Favourite = false
                     },
                     dbTransaction
                 );
-            } else {
-                imageId = result.Value;
             }
 
-            //var x = ModelState;
             await connection.ExecuteAsync(
-                @"Insert Dresses(DressId, DressName, DressWebpage, Price, ProductDescription, DressType, DressApproval, Rating, ShopId, WeddingId, ImageId, CreatedBy, CreatedAt, ModifiedBy, ModifiedAt, Deleted, DeletedAt) 
-                       values (@DressId, @DressName, @DressWebpage, @Price, @ProductDescription, @DressType, @DressApproval, @Rating, @ShopId, @WeddingId, @ImageId, @CreatedBy, @CreatedAt, @ModifiedBy, @ModifiedAt, @Deleted, @DeletedAt)",
-                    new DressItemsQueryModel() {
+                @"Insert Dresses(DressId, DressName, DressWebpage, Price, ProductDescription, DressType, DressApproval, Rating, ShopId, WeddingId, CreatedBy, CreatedAt, ModifiedBy, ModifiedAt, Deleted, DeletedAt) 
+                       values (@DressId, @DressName, @DressWebpage, @Price, @ProductDescription, @DressType, @DressApproval, @Rating, @ShopId, @WeddingId, @CreatedBy, @CreatedAt, @ModifiedBy, @ModifiedAt, @Deleted, @DeletedAt)",
+                    new DressSaveModel() {
                         DressId = dressId,
                         DressName = model.Name,
                         DressWebpage = model.Url,
@@ -152,7 +163,6 @@ namespace Website.Controllers
                         Rating = null,
                         ShopId = Guid.Empty, 
                         WeddingId = Guid.Empty,
-                        ImageId = imageId,
                         CreatedBy = Guid.Empty, //curent user
                         CreatedAt = DateTimeOffset.Now,
                         ModifiedBy = Guid.Empty,
@@ -162,17 +172,6 @@ namespace Website.Controllers
                     },
                     dbTransaction
                 );
-
-            await connection.ExecuteAsync(
-                @"Insert DressImages (DressId, ImageId, Favourite) 
-                    values (@DressId, @ImageId, @Favourite)",
-                new DressImages{
-                    DressId = dressId,
-                    ImageID = imageId,
-                    Favourite = false
-                },
-                dbTransaction
-            );
 
             return RedirectToAction(nameof(GetDressDetails), new { dressId });
         }
@@ -197,13 +196,20 @@ namespace Website.Controllers
             var dressImages = 
                 connection
                 .Query<DressImageModel>(
-                sqlDressImages, new { DressId = dressId }, dbTransaction);
+                sqlDressImages, new { DressId = dressId }, dbTransaction)
+                .ToList();
 
             var dress =
                 connection
-                .Query<DressItemsQueryModel>(
-                    "Select DressId, DressName, DressWebpage, Price, ProductDescription, DressType, DressApproval, Rating, ShopId, ImageId, CreatedBy FROM Dresses WHERE DressId = @DressId", new { DressId = dressId }, dbTransaction)
-                .Single();
+                .QueryFirst<DressQueryModel>(
+                    "Select DressId, DressName, DressWebpage, Price, ProductDescription, DressType, DressApproval, Rating, ShopId, CreatedBy FROM Dresses WHERE DressId = @DressId",
+                    new { DressId = dressId }, dbTransaction);
+
+            var image = dressImages.FirstOrDefault(x => x.Favourite);
+            if (image == null && dressImages.Count > 0) {
+                image = dressImages[0];
+            }
+            var primaryImageId = image == null ? null : new Guid?(image.ImageId);
 
             var model = new DressDetailsModel() {
                 Name = dress.DressName,
@@ -211,7 +217,7 @@ namespace Website.Controllers
                 Price = dress.Price.ToString("C"),
                 Shop = dress.ShopId,
                 Description = dress.ProductDescription,
-                PrimaryImageId = dress.ImageId,
+                PrimaryImageId = primaryImageId,
                 Images = dressImages.Select(x => x.ImageId).ToList(),
                 Comments = new List<string>() {
                     "Love Love Love!",
@@ -228,12 +234,11 @@ namespace Website.Controllers
         [HttpGet("{dressId}/edit")]
         public async Task<IActionResult> EditDressDetails(Guid dressId)
         {
-            var dresses =
+            var dress =
                 await connection
-                .QueryAsync<DressItemsQueryModel>(
+                .QueryFirstAsync<DressQueryModel>(
                     "Select DressId, DressName, DressWebpage, Price, ProductDescription, DressType, ShopId, ImageId, ModifiedBy, ModifiedAt FROM Dresses WHERE DressId = @DressId",
                     new { DressId = dressId }, dbTransaction);
-            var dress = dresses.Single();
 
             var model = new EditDressDetailsModel()
             {

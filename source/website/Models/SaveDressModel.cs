@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
 namespace Website.Models
@@ -11,7 +12,7 @@ namespace Website.Models
         [Required, MaxLength(30)]
         public string Name { get; set; }
         [Required]
-        public IFormFile Image { get; set; }
+        public List<IFormFile> Images { get; set; }
         public Guid? Shop { get; set; }
         public decimal? Price { get; set; }
         [MaxLength(2000)]

@@ -11,7 +11,7 @@
 </div>
 
 <div class="dress-details-image">
-    <img src="@Url.Action("GetImage", "Image", new { imageId = Model.PrimaryImageId })" />
+    <img src="@Url.Action("GetImage", "Image", new { imageId = Model.PrimaryImageId ?? Guid.Empty })" />
 </div>
 
 <h2>@Model.Name</h2>

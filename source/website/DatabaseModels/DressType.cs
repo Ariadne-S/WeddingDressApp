@@ -3,12 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Website.Entities
+namespace Website.DatabaseModels
 {
-    public enum GuestType
+    public enum DressType
     {
-        Bridesmaid,
-        Other
+        Bride,
+        BridesMaid,
     }
 
 }

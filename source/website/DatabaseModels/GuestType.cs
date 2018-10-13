@@ -3,13 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Website.Entities
+namespace Website.DatabaseModels
 {
-    public enum DressApproval
+    public enum GuestType
     {
-        Approved,
-        NotApproved,
-        NeedsApproval
+        Bridesmaid,
+        Other
     }
 
 }
