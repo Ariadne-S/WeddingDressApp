@@ -99,6 +99,32 @@ namespace Website.Controllers
             var dressId = Guid.NewGuid();
             var imageId = Guid.NewGuid();
 
+            var image = model.Image;
+            var imageFileName = image.FileName;
+            var imageName = System.IO.Path.GetFileName(image.FileName);
+            var imageExtension = System.IO.Path.GetExtension(image.FileName);
+            var imageContent = image.OpenReadStream().ReadFullyToArray();
+            var imageHash = GetByteArrayHash(imageContent);
+
+            var result = await connection.QueryFirstOrDefaultAsync<Guid?>("Select ImageId From Images Where Hash = @Hash", new { Hash = imageHash }, dbTransaction);
+
+            if (result == null) {
+                await connection.ExecuteAsync(
+                    @"Insert Images (ImageId, FileName, FileExtension, FileData, Hash) 
+                    values (@ImageId, @FileName, @FileExtension, @FileData, @Hash)",
+                    new Images() {
+                        ImageID = imageId,
+                        FileName = imageName,
+                        FileExtension = imageExtension,
+                        FileData = imageContent,
+                        Hash = imageHash,
+                    },
+                    dbTransaction
+                );
+            } else {
+                imageId = result.Value;
+            }
+
             //var x = ModelState;
             await connection.ExecuteAsync(
                 @"Insert Dresses(DressId, DressName, DressWebpage, Price, ProductDescription, DressType, DressApproval, Rating, ShopId, WeddingId, ImageId, CreatedBy, CreatedAt, ModifiedBy, ModifiedAt, Deleted, DeletedAt) 
@@ -124,26 +150,6 @@ namespace Website.Controllers
                     },
                     dbTransaction
                 );
-
-            var image = model.Image;
-            var imageFileName = image.FileName;
-            var imageName = System.IO.Path.GetFileName(image.FileName);
-            var imageExtension = System.IO.Path.GetExtension(image.FileName);
-            var imageContent = image.OpenReadStream().ReadFullyToArray();
-            var imageHash = GetByteArrayHash(imageContent);
-
-            await connection.ExecuteAsync(
-                @"Insert Images (ImageId, FileName, FileExtension, FileData, Hash) 
-                    values (@ImageId, @FileName, @FileExtension, @FileData, @Hash)",
-                new Images() {
-                    ImageID = imageId,
-                    FileName = imageName,
-                    FileExtension = imageExtension,
-                    FileData = imageContent,
-                    Hash = imageHash,
-                },
-                dbTransaction
-            );
 
             await connection.ExecuteAsync(
                 @"Insert DressImages (DressId, ImageId, Favourite) 
