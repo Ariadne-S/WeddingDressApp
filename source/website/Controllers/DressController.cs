@@ -40,7 +40,8 @@ namespace Website.Controllers
                             Select top 1 di2.DressId
                             From DressImages di2
                             Where di2.DressId = di.DressId
-                            Order By di2.[SequentialId], di2.[Favourite]))";
+                            Order By di2.[Favourite], di2.[SequentialId]))
+                    Order By d.[SequentialId]";
 
             var dresses =
                 connection
@@ -186,6 +187,18 @@ namespace Website.Controllers
         [HttpGet("{dressId}")]
         public async Task<IActionResult> GetDressDetails(Guid dressId)
         {
+            var sqlDressImages =
+                    @"SELECT i.ImageId, di.Favourite
+                    FROM DressImages di
+                    JOIN Images i on di.ImageId = i.ImageId
+                    WHERE di.DressId = @DressId
+                    ORDER BY di.SequentialId";
+
+            var dressImages = 
+                connection
+                .Query<DressImageModel>(
+                sqlDressImages, new { DressId = dressId }, dbTransaction);
+
             var dress =
                 connection
                 .Query<DressItemsQueryModel>(
@@ -198,7 +211,8 @@ namespace Website.Controllers
                 Price = dress.Price.ToString("C"),
                 Shop = dress.ShopId,
                 Description = dress.ProductDescription,
-                ImageId = dress.ImageId,
+                PrimaryImageId = dress.ImageId,
+                Images = dressImages.Select(x => x.ImageId).ToList(),
                 Comments = new List<string>() {
                     "Love Love Love!",
                     "So pretty!",
