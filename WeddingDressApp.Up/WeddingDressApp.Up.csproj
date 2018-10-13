@@ -8,11 +8,13 @@
   <ItemGroup>
     <None Remove="001_CreateTables.sql" />
     <None Remove="002_AddShopLocationsTable.sql" />
+    <None Remove="003_AddIndexForImages.sql" />
   </ItemGroup>
 
   <ItemGroup>
     <EmbeddedResource Include="001_CreateTables.sql" />
     <EmbeddedResource Include="002_AddShopLocationsTable.sql" />
+    <EmbeddedResource Include="003_AddIndexForImages.sql" />
   </ItemGroup>
 
   <ItemGroup>
